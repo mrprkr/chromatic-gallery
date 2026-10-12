@@ -8,7 +8,10 @@ import "./page.css";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <main className="page">
-      <h1>Gallery</h1>
+      <header className="page-header">
+        <h1>Gallery</h1>
+        <a href="https://github.com/mrprkr/chromatic-gallery">View on GitHub</a>
+      </header>
       <ChromaticGallery photos={photos as GalleryPhoto[]} />
     </main>
   </StrictMode>
