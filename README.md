@@ -6,6 +6,10 @@
 
 A React photo gallery that arranges photos by colour.
 
+**[Live demo](https://mrprkr.github.io/chromatic-gallery/)**
+
+[![The demo gallery in grid view, photos ordered by dominant colour](https://raw.githubusercontent.com/mrprkr/chromatic-gallery/main/docs/preview.jpg)](https://mrprkr.github.io/chromatic-gallery/)
+
 Photos flow round the colour wheel by their dominant colour. Viewers can filter by tone with a draggable colour wheel, filter by tag, switch between grid, columns and timeline views, shuffle within the colour bands, and step through a full-screen lightbox with the keyboard or by swiping.
 
 It ships with the build-time helpers that make it work: dominant colour extraction, blur placeholders and perceptual hashes for finding duplicates.
@@ -215,7 +219,7 @@ The lightbox is always dark. It renders into `<body>` above everything else; cha
 
 ## Example
 
-[`examples/vite`](./examples/vite) generates sample images, analyses them with `analysePhoto` and renders the gallery:
+[`examples/vite`](./examples/vite) is the [live demo](https://mrprkr.github.io/chromatic-gallery/). It analyses the photos in `public/photos` with `analysePhoto` and renders the gallery:
 
 ```bash
 pnpm install
@@ -223,7 +227,7 @@ pnpm build
 pnpm --filter chromatic-gallery-example dev
 ```
 
-Drop your own images into `examples/vite/public/photos` and run `pnpm --filter chromatic-gallery-example photos` to see them instead.
+Swap in your own images in `examples/vite/public/photos` and run `pnpm --filter chromatic-gallery-example photos` to see them instead. Every push to `main` redeploys the demo to GitHub Pages.
 
 ## Development
 
