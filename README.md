@@ -1,5 +1,9 @@
 # chromatic-gallery
 
+[![npm](https://img.shields.io/npm/v/chromatic-gallery)](https://www.npmjs.com/package/chromatic-gallery)
+[![CI](https://github.com/mrprkr/chromatic-gallery/actions/workflows/ci.yml/badge.svg)](https://github.com/mrprkr/chromatic-gallery/actions/workflows/ci.yml)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](./LICENSE)
+
 A React photo gallery that arranges photos by colour.
 
 Photos flow round the colour wheel by their dominant colour. Viewers can filter by tone with a draggable colour wheel, filter by tag, switch between grid, columns and timeline views, shuffle within the colour bands, and step through a full-screen lightbox with the keyboard or by swiping.
@@ -220,6 +224,24 @@ pnpm --filter chromatic-gallery-example dev
 ```
 
 Drop your own images into `examples/vite/public/photos` and run `pnpm --filter chromatic-gallery-example photos` to see them instead.
+
+## Development
+
+```bash
+pnpm install
+pnpm check   # typecheck, test, build and publint
+```
+
+CI runs the same checks on Node 20, 22 and 24 for every push and pull request, and builds the example.
+
+### Releasing
+
+```bash
+pnpm version patch   # or minor / major: bumps package.json and tags
+git push --follow-tags
+```
+
+The tag triggers the release workflow, which checks the tag matches `package.json`, publishes to npm with provenance and creates a GitHub release with generated notes. It needs an `NPM_TOKEN` repository secret. Add the changes to `CHANGELOG.md` before tagging.
 
 ## Browser support
 
