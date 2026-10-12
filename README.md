@@ -4,22 +4,43 @@
 [![CI](https://github.com/mrprkr/chromatic-gallery/actions/workflows/ci.yml/badge.svg)](https://github.com/mrprkr/chromatic-gallery/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](./LICENSE)
 
-A React photo gallery that arranges photos by colour.
+A React photo gallery that arranges photos by colour, so a page of pictures reads like one piece of work rather than a pile of thumbnails.
 
-**[Live demo](https://mrprkr.github.io/chromatic-gallery/)**
+**[Live demo](https://mrprkr.github.io/chromatic-gallery/)** · [Quick start](#quick-start) · [Next.js](#nextjs) · [Props](#props)
 
-[![The demo gallery in grid view, photos ordered by dominant colour](https://raw.githubusercontent.com/mrprkr/chromatic-gallery/main/docs/preview.jpg)](https://mrprkr.github.io/chromatic-gallery/)
+[![The gallery: dragging the tone wheel to filter by colour, filtering by tag, switching between grid, columns and timeline views, shuffling and stepping through the lightbox](https://raw.githubusercontent.com/mrprkr/chromatic-gallery/main/docs/demo.gif)](https://mrprkr.github.io/chromatic-gallery/)
 
-Photos flow round the colour wheel by their dominant colour. Viewers can filter by tone with a draggable colour wheel, filter by tag, switch between grid, columns and timeline views, shuffle within the colour bands, and step through a full-screen lightbox with the keyboard or by swiping.
+## Why
 
-It ships with the build-time helpers that make it work: dominant colour extraction, blur placeholders and perceptual hashes for finding duplicates.
+Most galleries show photos in the order you uploaded them. That order means nothing to a visitor, and a wall of unrelated thumbnails looks busy no matter how good the pictures are.
 
-- Works in any React 18+ app on Node 20+: Next.js, Vite, Remix, Astro. No Tailwind or CSS framework needed.
-- Server-renderable, with no hydration mismatches. Shuffling waits until after mount.
-- Deep-linkable: the open photo lives in the URL hash, so the back button closes the lightbox.
-- Mounts photos in batches as you scroll, so a gallery of hundreds does not exhaust memory on phones.
-- Themed with CSS custom properties. Follows the system colour scheme or your site's `.dark` class.
-- Every label can be replaced, for translation or rewording.
+chromatic-gallery sorts photos round the colour wheel by their dominant colour. Neighbouring tiles share a palette, the page flows from warm to cool, and the whole set looks curated with no manual arranging. Visitors can pull the tone wheel to see only the blues or the reds, which is a far more natural way to browse a few hundred photos than paging through them.
+
+It is a complete gallery, not a layout primitive. Filters, three views, a swipeable lightbox, blur placeholders, deep links, dark mode and translations are all built in, and the build-time helpers that extract the colours ship in the same package. Add it to a page in an afternoon and it keeps working as the collection grows.
+
+## Features
+
+**For visitors**
+
+- **Colour-sorted layout.** Photos flow round the colour wheel, greys at the end. Shuffle keeps the colour journey while varying the order on each visit.
+- **Tone wheel.** A draggable colour wheel filters to red, orange, yellow, green, blue, purple or neutral, with keyboard support.
+- **Tag filter.** One dropdown built from your categories, title-cased for you.
+- **Three views.** Grid, columns (masonry) and a timeline grouped by month, newest first.
+- **Lightbox.** Full screen, swipeable, keyboard-driven, with the category and location shown alongside. Neighbouring photos are preloaded so stepping through is instant.
+- **Blur placeholders.** Each tile paints a gradient from the photo's own colours while the image loads, so the page never flashes white.
+
+**For developers**
+
+- **Works in any React 18+ app** on Node 20+: Next.js, Vite, Remix, Astro. No Tailwind, no CSS framework, one stylesheet import.
+- **Server-renderable** with no hydration mismatches. Shuffling waits until after mount.
+- **Batteries included for the build step.** `analysePhoto` returns dimensions, dominant colours, a blur placeholder and a perceptual hash from one call. Run it once per photo and store the result.
+- **Duplicate detection.** Perceptual hashes find resized, recompressed and lightly edited copies of the same photo and suggest which to keep.
+- **Deep links.** The open photo lives in the URL hash, so links share a specific photo and the back button closes the lightbox.
+- **Scales to large collections.** Photos mount in batches as you scroll, so a gallery of hundreds does not exhaust memory on phones.
+- **Bring your own image component.** `next/image` is supported out of the box; any component with the same props works too.
+- **Themed with CSS custom properties.** Follows the system colour scheme, your site's `.dark` class or a fixed scheme. Every colour and spacing value is overridable.
+- **Fully translatable.** Every label can be replaced.
+- **Typed, tested and tree-shakeable.** Written in TypeScript, ESM and CommonJS builds, and the colour helpers in `chromatic-gallery/core` have no dependencies at all.
 
 ## Install
 
@@ -245,7 +266,7 @@ pnpm version patch   # or minor / major: bumps package.json and tags
 git push --follow-tags
 ```
 
-The tag triggers the release workflow, which checks the tag matches `package.json`, publishes to npm with provenance and creates a GitHub release with generated notes. It needs an `NPM_TOKEN` repository secret. Add the changes to `CHANGELOG.md` before tagging.
+The tag triggers the release workflow, which checks the tag matches `package.json`, publishes to npm with provenance through [trusted publishing](https://docs.npmjs.com/trusted-publishers) and creates a GitHub release with generated notes. Add the changes to `CHANGELOG.md` before tagging.
 
 ## Browser support
 
