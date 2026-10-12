@@ -6,7 +6,43 @@ body {
   color: light-dark(#171717, #fafafa);
 }
 .page { max-width: 72rem; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
-h1 { font-weight: 500; margin: 0; }
-.page-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1rem; margin-bottom: 2rem; }
-.page-header a { color: inherit; font-size: 0.875rem; opacity: 0.7; }
-.page-header a:hover { opacity: 1; }
+
+.promo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid light-dark(#e5e5e5, #262626);
+}
+.promo h1 { font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+.promo p { margin: 0.5rem 0 0; max-width: 34rem; line-height: 1.5; color: light-dark(#525252, #a3a3a3); }
+
+.promo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.install {
+  display: flex;
+  align-items: center;
+  border: 1px solid light-dark(#e5e5e5, #262626);
+  border-radius: 0.5rem;
+  background: light-dark(#fafafa, #171717);
+}
+.install code { padding: 0 0.75rem; font-size: 0.875rem; user-select: all; }
+.install button,
+.button {
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid light-dark(#e5e5e5, #262626);
+  background: light-dark(#ffffff, #0a0a0a);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.install button { border-width: 0 0 0 1px; border-radius: 0 0.5rem 0.5rem 0; min-width: 4.5rem; }
+.button.primary { background: light-dark(#171717, #fafafa); color: light-dark(#fafafa, #171717); border-color: transparent; }
+.install button:hover, .button:hover { opacity: 0.85; }
+.install button:focus-visible, .button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
