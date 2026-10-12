@@ -34,11 +34,11 @@ It is a complete gallery, not a layout primitive. Filters, three views, a swipea
 
 - **Works in any React 18+ app** on Node 20+: Next.js, Vite, Remix, Astro. No Tailwind, no CSS framework, one stylesheet import.
 - **Server-renderable** with no hydration mismatches. Shuffling waits until after mount.
-- **Batteries included for the build step.** `analysePhoto` returns dimensions, dominant colours, a blur placeholder and a perceptual hash from one call. Run it once per photo and store the result.
+- **One call to prepare each photo.** `analysePhoto` returns dimensions, dominant colours, a blur placeholder and a perceptual hash. Run it once per photo and store the result.
 - **Duplicate detection built in.** Perceptual hashes stay close when a photo is resized, recompressed or lightly edited, so `findSimilarPairs` and `groupDuplicates` catch the copies a byte-for-byte comparison misses, and suggest which one to keep. Clean up a messy export before it reaches the page.
 - **Deep links.** The open photo lives in the URL hash, so links share a specific photo and the back button closes the lightbox.
 - **Scales to large collections.** Only the first screenful mounts on first paint, and the rest arrive in batches as you scroll, so a gallery of hundreds stays quick to load and does not exhaust memory on phones.
-- **Bring your own image component.** `next/image` is supported out of the box; any component with the same props works too.
+- **Bring your own image component.** `next/image` is supported directly; any component with the same props works too.
 - **Themed with CSS custom properties.** Follows the system colour scheme, your site's `.dark` class or a fixed scheme. Every colour and spacing value is overridable.
 - **Fully translatable.** Every label can be replaced.
 - **Typed, tested and tree-shakeable.** Written in TypeScript, ESM and CommonJS builds, and the colour helpers in `chromatic-gallery/core` have no dependencies at all.
