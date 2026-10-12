@@ -1,0 +1,21 @@
+{
+  "name": "chromatic-gallery-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "photos": "node scripts/sample-photos.mjs && node scripts/analyse.mjs",
+    "dev": "pnpm photos && vite",
+    "build": "pnpm photos && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "chromatic-gallery": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "sharp": "^0.34.0",
+    "vite": "^7.0.0"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "name": "chromatic-gallery",
+  "version": "0.1.0",
+  "description": "A React photo gallery that arranges photos by colour, with tone and tag filters, grid, columns and timeline views, and a swipeable lightbox.",
+  "keywords": [
+    "react",
+    "gallery",
+    "photo-gallery",
+    "lightbox",
+    "masonry",
+    "colour",
+    "nextjs",
+    "phash",
+    "dominant-colours"
+  ],
+  "license": "MIT",
+  "author": "mrprkr",
+  "homepage": "https://github.com/mrprkr/chromatic-gallery#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrprkr/chromatic-gallery.git"
+  },
+  "bugs": "https://github.com/mrprkr/chromatic-gallery/issues",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
+    "./next": {
+      "import": "./dist/next.js",
+      "require": "./dist/next.cjs"
+    },
+    "./node": {
+      "import": "./dist/node.js",
+      "require": "./dist/node.cjs"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup && cp src/react/styles.css dist/styles.css",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "pnpm typecheck && pnpm test && pnpm build && publint",
+    "prepublishOnly": "pnpm check"
+  },
+  "peerDependencies": {
+    "next": ">=14",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "sharp": ">=0.33"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "sharp": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^30.1.2",
+    "next": "^15.1.0",
+    "publint": "^0.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.34.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=18"
+  }
+}
