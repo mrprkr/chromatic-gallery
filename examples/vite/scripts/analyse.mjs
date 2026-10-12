@@ -14,7 +14,7 @@ const details = {
   dscf0697: ["Harbour Bridge ironwork", "architecture", "Sydney"],
   dscf0784: ["Luna Park by the harbour", "travel", "Sydney"],
   dscf0891: ["Ice cream shop", "street", "Singapore"],
-  dscf1178: ["Glass dome and greenery", "architecture", "Singapore"],
+  dscf1178: ["Glass dome and greenery", "architecture", "Doha"],
   dscf1189: ["Airport lounge", "travel", "Singapore"],
   dscf1632: ["Restaurant at dusk", "street", "Singapore"],
   dscf1642: ["Festoon lights at night", "street", "Sydney"],
