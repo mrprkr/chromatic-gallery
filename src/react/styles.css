@@ -598,8 +598,11 @@
   right: calc(0.75rem + env(safe-area-inset-right, 0px));
   bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   z-index: 30;
-  max-width: min(20rem, calc(100vw - 1.5rem));
-  overflow-y: auto;
+  box-sizing: border-box;
+  width: max-content;
+  /* Relative to the lightbox, not 100vw: Safari's 100vw includes a classic scrollbar. */
+  max-width: min(20rem, calc(100% - 1.5rem));
+  overflow-wrap: anywhere;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.5rem;
   background: rgba(0, 0, 0, 0.55);
