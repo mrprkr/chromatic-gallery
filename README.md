@@ -23,20 +23,21 @@ It is a complete gallery, not a layout primitive. Filters, three views, a swipea
 **For visitors**
 
 - **Colour-sorted layout.** Photos flow round the colour wheel, greys at the end. Shuffle keeps the colour journey while varying the order on each visit.
+- **Responsive by default.** Two columns on phones, four on wide screens. Filters collapse into a single sheet on small screens, the grid is the default view on phones, and the lightbox respects notches and home indicators.
+- **Fast loading.** Images lazy-load with correct `sizes` hints so phones never download desktop-sized files. Each tile paints a gradient from the photo's own colours while the image loads, so the page never flashes white, and the lightbox preloads its neighbours so stepping through is instant.
 - **Tone wheel.** A draggable colour wheel filters to red, orange, yellow, green, blue, purple or neutral, with keyboard support.
 - **Tag filter.** One dropdown built from your categories, title-cased for you.
 - **Three views.** Grid, columns (masonry) and a timeline grouped by month, newest first.
-- **Lightbox.** Full screen, swipeable, keyboard-driven, with the category and location shown alongside. Neighbouring photos are preloaded so stepping through is instant.
-- **Blur placeholders.** Each tile paints a gradient from the photo's own colours while the image loads, so the page never flashes white.
+- **Lightbox.** Full screen, swipeable, keyboard-driven, with the category and location shown alongside.
 
 **For developers**
 
 - **Works in any React 18+ app** on Node 20+: Next.js, Vite, Remix, Astro. No Tailwind, no CSS framework, one stylesheet import.
 - **Server-renderable** with no hydration mismatches. Shuffling waits until after mount.
 - **Batteries included for the build step.** `analysePhoto` returns dimensions, dominant colours, a blur placeholder and a perceptual hash from one call. Run it once per photo and store the result.
-- **Duplicate detection.** Perceptual hashes find resized, recompressed and lightly edited copies of the same photo and suggest which to keep.
+- **Duplicate detection built in.** Perceptual hashes stay close when a photo is resized, recompressed or lightly edited, so `findSimilarPairs` and `groupDuplicates` catch the copies a byte-for-byte comparison misses, and suggest which one to keep. Clean up a messy export before it reaches the page.
 - **Deep links.** The open photo lives in the URL hash, so links share a specific photo and the back button closes the lightbox.
-- **Scales to large collections.** Photos mount in batches as you scroll, so a gallery of hundreds does not exhaust memory on phones.
+- **Scales to large collections.** Only the first screenful mounts on first paint, and the rest arrive in batches as you scroll, so a gallery of hundreds stays quick to load and does not exhaust memory on phones.
 - **Bring your own image component.** `next/image` is supported out of the box; any component with the same props works too.
 - **Themed with CSS custom properties.** Follows the system colour scheme, your site's `.dark` class or a fixed scheme. Every colour and spacing value is overridable.
 - **Fully translatable.** Every label can be replaced.
