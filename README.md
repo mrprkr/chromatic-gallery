@@ -10,7 +10,7 @@ Photos flow round the colour wheel by their dominant colour. Viewers can filter 
 
 It ships with the build-time helpers that make it work: dominant colour extraction, blur placeholders and perceptual hashes for finding duplicates.
 
-- Works in any React 18+ app: Next.js, Vite, Remix, Astro. No Tailwind or CSS framework needed.
+- Works in any React 18+ app on Node 20+: Next.js, Vite, Remix, Astro. No Tailwind or CSS framework needed.
 - Server-renderable, with no hydration mismatches. Shuffling waits until after mount.
 - Deep-linkable: the open photo lives in the URL hash, so the back button closes the lightbox.
 - Mounts photos in batches as you scroll, so a gallery of hundreds does not exhaust memory on phones.
@@ -232,7 +232,7 @@ pnpm install
 pnpm check   # typecheck, test, build and publint
 ```
 
-CI runs the same checks on Node 20, 22 and 24 for every push and pull request, and builds the example.
+CI runs the same checks on Node 22 and 24 for every push and pull request, and builds the example.
 
 ### Releasing
 
