@@ -1,0 +1,9 @@
+:root { color-scheme: light dark; }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: light-dark(#ffffff, #0a0a0a);
+  color: light-dark(#171717, #fafafa);
+}
+.page { max-width: 72rem; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+h1 { font-weight: 500; margin: 0 0 2rem; }

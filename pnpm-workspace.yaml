@@ -1,0 +1,9 @@
+packages:
+  - .
+  - examples/*
+
+# Both ship prebuilt binaries as optional dependencies, so their install
+# scripts are not needed.
+allowBuilds:
+  esbuild: false
+  sharp: false
