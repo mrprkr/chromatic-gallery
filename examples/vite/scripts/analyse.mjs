@@ -41,6 +41,19 @@ const details = {
   dscf5696: ["Tube roundel", "street", "London"],
   dscf6963: ["Apartment blocks", "architecture", "London"],
   dscf7159: ["Glass towers", "architecture"],
+  dscf5571: ["Brick terrace with flower boxes", "architecture", "London"],
+  dscf5999: ["Cotswold cottages", "travel", "Cirencester"],
+  dscf6034: ["Self-driving cars in traffic", "street", "London"],
+  dscf6139: ["Gothic clock tower", "architecture", "London"],
+  dscf6430: ["BT Tower", "architecture", "London"],
+  dscf6431: ["Pub with hanging baskets", "architecture", "London"],
+  dscf6595: ["Train window reflections", "street", "London"],
+  dscf6683: ["Colourful tunnel", "street", "London"],
+  dscf6819: ["The Shard from the river", "travel", "London"],
+  dscf6849: ["Tower of London", "travel", "London"],
+  dscf6860: ["Gherkin and office towers", "architecture", "London"],
+  dscf6869: ["City towers at dusk", "architecture", "London"],
+  dscf7028: ["Autumn maple leaves", "nature"],
 };
 
 // Random but stable per file, so every build of the demo looks the same.
