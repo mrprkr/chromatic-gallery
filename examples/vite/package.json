@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "photos": "node scripts/sample-photos.mjs && node scripts/analyse.mjs",
+    "photos": "node scripts/analyse.mjs",
     "dev": "pnpm photos && vite",
     "build": "pnpm photos && vite build",
     "preview": "vite preview"
