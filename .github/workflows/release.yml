@@ -1,13 +1,17 @@
 name: Release
 
-# Publishes to npm when a version tag is pushed: `git tag v0.1.0 && git push --tags`.
+# Publishes to npm and creates a GitHub release when a version tag is pushed:
+#
+#   pnpm version patch   # or minor / major; bumps package.json and tags
+#   git push --follow-tags
+#
 # Needs an NPM_TOKEN repository secret (an npm automation token).
 on:
   push:
     tags: ["v*"]
 
 permissions:
-  contents: read
+  contents: write # create the GitHub release
   id-token: write # npm provenance
 
 jobs:
@@ -24,6 +28,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check the tag matches package.json
         run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
-      - run: pnpm publish --provenance --access public --no-git-checks
+      # prepublishOnly runs typecheck, tests, build and publint first.
+      - name: Publish to npm
+        run: pnpm publish --provenance --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create GitHub release
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
