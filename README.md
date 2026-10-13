@@ -1,5 +1,7 @@
 # chromatic-gallery
 
+[![chromatic-gallery: three overlapping panels of red, green and blue light](https://raw.githubusercontent.com/mrprkr/chromatic-gallery/main/docs/brand/producthunt-0-title.png)](https://mrprkr.github.io/chromatic-gallery/)
+
 [![npm](https://img.shields.io/npm/v/chromatic-gallery)](https://www.npmjs.com/package/chromatic-gallery)
 [![CI](https://github.com/mrprkr/chromatic-gallery/actions/workflows/ci.yml/badge.svg)](https://github.com/mrprkr/chromatic-gallery/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](./LICENSE)
