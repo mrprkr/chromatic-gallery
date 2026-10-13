@@ -54,6 +54,27 @@ const details = {
   dscf6860: ["Gherkin and office towers", "architecture", "London"],
   dscf6869: ["City towers at dusk", "architecture", "London"],
   dscf7028: ["Autumn maple leaves", "nature"],
+  // Rendered by generate.mjs: WebGL shader pieces and treatments of the photos above.
+  "gen-event-horizon": ["Event horizon", "generative"],
+  "gen-moire": ["Moiré interference", "generative"],
+  "gen-molten-core": ["Molten core", "generative"],
+  "gen-neon-plasma": ["Neon plasma", "generative"],
+  "gen-primary-cells": ["Primary cells", "generative"],
+  "gen-spectrum-vortex": ["Spectrum vortex", "generative"],
+  "gen-sunset-bands": ["Sunset bands", "generative"],
+  "gen-toxic-bloom": ["Toxic bloom", "generative"],
+  "gen-ultramarine-caustics": ["Ultramarine caustics", "generative"],
+  "gen-whiteout": ["Whiteout", "generative"],
+  "fx-acid-canola": ["Acid canola field", "treated"],
+  "fx-duotone-bridge": ["Duotone bridge ironwork", "treated", "Sydney"],
+  "fx-glitch-tunnel": ["Glitched tunnel", "treated", "London"],
+  "fx-halftone-terrace": ["Halftone brick terrace", "treated", "London"],
+  "fx-infrared-canopy": ["Infrared tree canopy", "treated", "Sydney"],
+  "fx-inverted-sails": ["Inverted sails", "treated", "Sydney"],
+  "fx-kaleido-luna-park": ["Luna Park kaleidoscope", "treated", "Sydney"],
+  "fx-onebit-train": ["One-bit train", "treated", "London"],
+  "fx-solarised-maple": ["Solarised maple leaves", "treated"],
+  "fx-thermal-towers": ["Thermal city towers", "treated", "London"],
 };
 
 // Random but stable per file, so every build of the demo looks the same.
