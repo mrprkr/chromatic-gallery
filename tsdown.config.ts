@@ -1,11 +1,16 @@
-import { defineConfig, type Options } from "tsup";
+import { defineConfig, type UserConfig } from "tsdown";
 
-const shared: Options = {
+const shared: UserConfig = {
   format: ["esm", "cjs"],
+  // Declarations come from TypeScript 7's native compiler. tsup's declaration
+  // bundler needs the classic JavaScript compiler API, which 7 no longer has.
   dts: true,
   sourcemap: true,
   target: "es2020",
-  external: ["react", "react-dom", "next", "sharp"],
+  platform: "neutral",
+  // Keep .js for ESM and .cjs for CommonJS, matching package.json exports.
+  fixedExtension: false,
+  deps: { neverBundle: ["react", "react-dom", "react/jsx-runtime", "next", /^next\//, "sharp"] },
 };
 
 export default defineConfig([
@@ -20,5 +25,6 @@ export default defineConfig([
   {
     ...shared,
     entry: { core: "src/core/index.ts", node: "src/node/index.ts" },
+    clean: false,
   },
 ]);
