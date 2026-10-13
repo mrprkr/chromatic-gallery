@@ -6,7 +6,8 @@
     "photos": "node scripts/analyse.mjs",
     "dev": "pnpm photos && vite",
     "build": "pnpm photos && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate": "node scripts/generate.mjs"
   },
   "dependencies": {
     "chromatic-gallery": "workspace:*",
@@ -15,6 +16,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.2",
+    "playwright-core": "1.56.1",
     "sharp": "^0.35.5",
     "vite": "^8.3.4"
   }
