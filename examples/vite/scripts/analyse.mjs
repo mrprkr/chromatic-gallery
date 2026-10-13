@@ -54,6 +54,23 @@ const details = {
   dscf6860: ["Gherkin and office towers", "architecture", "London"],
   dscf6869: ["City towers at dusk", "architecture", "London"],
   dscf7028: ["Autumn maple leaves", "nature"],
+  // Rendered by generate.mjs: abstract rim-lit folds round the colour wheel.
+  "fold-red": ["Red folds", "folds"],
+  "fold-vermilion": ["Vermilion folds", "folds"],
+  "fold-orange": ["Orange folds", "folds"],
+  "fold-amber": ["Amber folds", "folds"],
+  "fold-yellow": ["Yellow folds", "folds"],
+  "fold-lime": ["Lime folds", "folds"],
+  "fold-green": ["Green folds", "folds"],
+  "fold-teal": ["Teal folds", "folds"],
+  "fold-azure": ["Azure folds", "folds"],
+  "fold-blue": ["Blue folds", "folds"],
+  "fold-indigo": ["Indigo folds", "folds"],
+  "fold-violet": ["Violet folds", "folds"],
+  "fold-magenta": ["Magenta folds", "folds"],
+  "fold-rose": ["Rose folds", "folds"],
+  "fold-graphite": ["Graphite folds", "folds"],
+  "fold-silver": ["Silver folds", "folds"],
 };
 
 // Random but stable per file, so every build of the demo looks the same.
