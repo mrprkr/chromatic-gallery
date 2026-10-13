@@ -198,8 +198,8 @@ const textures = Object.keys(palettes).flatMap((tone) =>
 
 // Folds: layered sheets with curved edges on a near-black ground, each lit
 // along its edge with a bright rim and falling off into shadow, casting a dark
-// gap onto the sheet beneath. One per 30° step round the wheel plus two
-// neutrals, all near one hue so the sort shows a clean spectrum.
+// gap onto the sheet beneath. Fourteen hues round the wheel plus two
+// neutrals, each held near one hue so the sort shows a clean spectrum.
 const FOLD_PRELUDE = `
 float smin(float a, float b, float k) { float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0); return mix(b, a, h) - k * h * (1.0 - h); }
 // Signed distance to a curved edge u = a + b v + c v² + d sin(k v) in a frame
