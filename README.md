@@ -145,7 +145,7 @@ Pass any component that accepts `GalleryImageProps` (the same shape as `next/ima
 import type { ImageAdapter } from "chromatic-gallery";
 
 const cdnImage: ImageAdapter = {
-  Image: ({ src, alt, width, height, fill, className, onLoad, priority }) => (
+  Image: ({ src, alt, width, height, fill, className, onLoad, priority, loading }) => (
     <img
       src={`${src}?w=1200`}
       alt={alt}
@@ -153,7 +153,7 @@ const cdnImage: ImageAdapter = {
       height={fill ? undefined : height}
       className={className}
       onLoad={onLoad}
-      loading={priority ? "eager" : "lazy"}
+      loading={priority ? "eager" : (loading ?? "lazy")}
       style={fill ? { position: "absolute", inset: 0, width: "100%", height: "100%" } : undefined}
     />
   ),
@@ -163,7 +163,7 @@ const cdnImage: ImageAdapter = {
 };
 ```
 
-Call `onLoad` once the image has loaded: tiles stay blurred until it fires.
+Call `onLoad` once the image has loaded: tiles stay blurred until it fires. Pass `loading` through: the gallery sets it to `eager` once a tile is within two screens of the viewport, so images are ready before they scroll into view.
 
 ## Props
 
