@@ -103,3 +103,37 @@ function monthLabel(key: string, locale: string): string {
     year: "numeric",
   });
 }
+
+type Sized = Pick<GalleryPhoto, "width" | "height">;
+
+/** Height-to-width ratio assumed for a photo without dimensions (4:5 portrait). */
+const FALLBACK_RATIO = 1.25;
+
+/**
+ * Splits photos into columns for a masonry layout, placing each photo in the
+ * column that is currently shortest (by aspect ratio, as every column has the
+ * same width). Round-robin placement lets column heights drift apart as the
+ * list grows, leaving one column ending well before the others. Placement only
+ * depends on earlier photos, so appending more never moves a photo already
+ * placed. Ties go to the leftmost column, so a run of same-shaped photos still
+ * reads row-first.
+ */
+export function balanceColumns<T extends Sized>(
+  photos: readonly T[],
+  columnCount: number
+): { photo: T; index: number }[][] {
+  const count = Math.max(1, Math.floor(columnCount));
+  const columns: { photo: T; index: number }[][] = Array.from({ length: count }, () => []);
+  const heights = new Array<number>(count).fill(0);
+  photos.forEach((photo, index) => {
+    let shortest = 0;
+    for (let c = 1; c < count; c++) {
+      // A small tolerance keeps near-equal columns filling left to right.
+      if (heights[c] < heights[shortest] - 1e-6) shortest = c;
+    }
+    columns[shortest].push({ photo, index });
+    const ratio = photo.width && photo.height ? photo.height / photo.width : FALLBACK_RATIO;
+    heights[shortest] += ratio;
+  });
+  return columns;
+}
