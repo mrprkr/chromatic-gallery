@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  balanceColumns,
   colorBlur,
   findSimilarPairs,
   groupByMonth,
@@ -111,6 +112,34 @@ describe("groupByMonth", () => {
     });
     expect(dated.label).toBe("mars 2024");
     expect(undated.label).toBe("Sans date");
+  });
+});
+
+describe("balanceColumns", () => {
+  const sized = (id: string, width: number, height: number) => ({ id, width, height });
+
+  it("fills same-shaped photos row-first", () => {
+    const photos = ["a", "b", "c", "d", "e"].map((id) => sized(id, 800, 600));
+    const ids = balanceColumns(photos, 3).map((col) => col.map((c) => c.photo.id));
+    expect(ids).toEqual([["a", "d"], ["b", "e"], ["c"]]);
+  });
+
+  it("places each photo in the shortest column", () => {
+    const photos = [sized("tall", 600, 1200), sized("wide1", 1200, 600), sized("wide2", 1200, 600), sized("wide3", 1200, 600)];
+    const ids = balanceColumns(photos, 2).map((col) => col.map((c) => c.photo.id));
+    expect(ids).toEqual([["tall"], ["wide1", "wide2", "wide3"]]);
+  });
+
+  it("keeps placed photos where they are when more are appended", () => {
+    const photos = Array.from({ length: 30 }, (_, i) => sized(String(i), 800, 500 + ((i * 137) % 900)));
+    const before = balanceColumns(photos.slice(0, 18), 3);
+    const after = balanceColumns(photos, 3);
+    before.forEach((col, c) => expect(after[c].slice(0, col.length)).toEqual(col));
+  });
+
+  it("keeps the original index for lightbox navigation", () => {
+    const columns = balanceColumns([sized("a", 1, 1), sized("b", 1, 1)], 2);
+    expect(columns.map((col) => col[0].index)).toEqual([0, 1]);
   });
 });
 

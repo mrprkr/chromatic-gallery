@@ -1,6 +1,6 @@
 {
   "name": "chromatic-gallery",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A React photo gallery that arranges photos by colour, with tone and tag filters, grid, columns and timeline views, and a swipeable lightbox.",
   "keywords": [
     "react",
