@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { groupByMonth, shuffleWithinChromaticOrder, sortChromatically, type TimelineGroup } from "../core/arrange";
+import {
+  balanceColumns,
+  groupByMonth,
+  shuffleWithinChromaticOrder,
+  sortChromatically,
+  type TimelineGroup,
+} from "../core/arrange";
 import { hueFamily } from "../core/hue";
 import type { GalleryPhoto, ViewMode } from "../core/types";
 import { Controls, type CategoryOption } from "./Controls";
@@ -11,6 +17,12 @@ import { PhotoTile } from "./PhotoTile";
 import type { ToneValue } from "./tones";
 
 const ALL_VIEWS: readonly ViewMode[] = ["grid", "masonry", "timeline"];
+
+/**
+ * How far ahead of the viewport the next batch mounts. Wider than the image
+ * load margin (two screens), so tiles exist before they need to start loading.
+ */
+const MOUNT_MARGIN = "300% 0px";
 
 export interface ChromaticGalleryProps {
   photos: readonly GalleryPhoto[];
@@ -181,11 +193,15 @@ export function ChromaticGallery({
     [visiblePhotos, locale, labels.undated]
   );
 
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  // Columns end at different heights, so each one gets its own sentinel: the
+  // next batch mounts as soon as the shortest column nears the viewport, not
+  // when the tallest does, which left the shorter columns empty for a while.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const columnLayout = viewMode === "masonry" && columnCount > 1;
   useEffect(() => {
     if (!hasMore) return;
-    const el = sentinelRef.current;
-    if (!el) return;
+    const sentinels = rootRef.current?.querySelectorAll("[data-cg-sentinel]");
+    if (!sentinels?.length) return;
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
@@ -195,11 +211,11 @@ export function ChromaticGallery({
           });
         }
       },
-      { rootMargin: "1200px 0px" }
+      { rootMargin: MOUNT_MARGIN }
     );
-    io.observe(el);
+    sentinels.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [hasMore, orderedPhotos.length, visibleCount, windowKey, batchSize]);
+  }, [hasMore, orderedPhotos.length, visibleCount, windowKey, batchSize, columnLayout, columnCount]);
 
   const selectedPhoto = selectedIndex !== null ? orderedPhotos[selectedIndex] : null;
 
@@ -273,6 +289,7 @@ export function ChromaticGallery({
 
   return (
     <div
+      ref={rootRef}
       className={`cg-root${className ? ` ${className}` : ""}`}
       data-color-scheme={colorScheme}
       style={style}
@@ -317,13 +334,13 @@ export function ChromaticGallery({
         columnCount === 1 ? (
           <BentoGrid photos={visiblePhotos} tile={tile} />
         ) : (
-          <MasonryColumns photos={visiblePhotos} columnCount={columnCount} tile={tile} />
+          <MasonryColumns photos={visiblePhotos} columnCount={columnCount} tile={tile} hasMore={hasMore} />
         )
       ) : (
         <Timeline groups={timelineGroups} tile={tile} />
       )}
 
-      {hasMore && <div ref={sentinelRef} aria-hidden className="cg-sentinel" />}
+      {hasMore && !columnLayout && <div aria-hidden data-cg-sentinel className="cg-sentinel" />}
 
       {selectedPhoto && (
         <Lightbox
@@ -353,21 +370,23 @@ function MasonryColumns({
   photos,
   columnCount,
   tile,
+  hasMore,
 }: {
   photos: GalleryPhoto[];
   columnCount: number;
   tile: RenderTile;
+  hasMore: boolean;
 }) {
-  // Distribute row-first (0 to column 0, 1 to column 1, ...) so reading order
-  // across the top row matches the arrangement.
-  const columns: { photo: GalleryPhoto; index: number }[][] = Array.from({ length: columnCount }, () => []);
-  photos.forEach((photo, index) => columns[index % columnCount].push({ photo, index }));
+  // Each photo goes to the shortest column, so the columns end close together
+  // instead of drifting apart as more photos mount.
+  const columns = balanceColumns(photos, columnCount);
 
   return (
     <div className="cg-columns">
       {columns.map((col, i) => (
         <div key={i} className="cg-column">
           {col.map(({ photo, index }) => tile(photo, "masonry", index))}
+          {hasMore && <div aria-hidden data-cg-sentinel className="cg-column-sentinel" />}
         </div>
       ))}
     </div>
