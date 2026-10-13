@@ -7,7 +7,9 @@
     "dev": "pnpm photos && vite",
     "build": "pnpm photos && vite build",
     "preview": "vite preview",
-    "generate": "node scripts/generate.mjs"
+    "generate": "node scripts/generate.mjs",
+    "mark": "node scripts/mark.mjs",
+    "shots": "node scripts/shots.mjs"
   },
   "dependencies": {
     "chromatic-gallery": "workspace:*",
