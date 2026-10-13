@@ -1,4 +1,4 @@
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore, type RefCallback } from "react";
 import type { ViewMode } from "../core/types";
 
 /**
@@ -119,4 +119,59 @@ export function useSelection(hashNavigation: boolean) {
   );
 
   return [selectedId, select] as const;
+}
+
+/**
+ * How far ahead of the viewport a tile starts loading its image: two screens.
+ * Native `loading="lazy"` waits until an image is almost on screen in Safari
+ * and Firefox, so tiles scrolled into view at speed sat empty while they
+ * downloaded.
+ */
+export const IMAGE_LOAD_MARGIN = "200% 0px";
+
+/**
+ * One observer shared by every tile, rather than one per tile, so a gallery of
+ * hundreds of photos does not create hundreds of observers.
+ */
+let sharedObserver: IntersectionObserver | null = null;
+const nearCallbacks = new Map<Element, () => void>();
+
+function observeNear(el: Element, onNear: () => void) {
+  if (typeof IntersectionObserver === "undefined") {
+    onNear();
+    return () => {};
+  }
+  sharedObserver ??= new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const callback = nearCallbacks.get(entry.target);
+        nearCallbacks.delete(entry.target);
+        sharedObserver?.unobserve(entry.target);
+        callback?.();
+      }
+    },
+    { rootMargin: IMAGE_LOAD_MARGIN }
+  );
+  nearCallbacks.set(el, onNear);
+  sharedObserver.observe(el);
+  return () => {
+    nearCallbacks.delete(el);
+    sharedObserver?.unobserve(el);
+  };
+}
+
+/**
+ * True once the element has come within `IMAGE_LOAD_MARGIN` of the viewport.
+ * It stays true, so an image that started loading is never cancelled.
+ */
+export function useNearViewport<T extends Element>(): [RefCallback<T>, boolean] {
+  const [near, setNear] = useState(false);
+  const cleanup = useRef<(() => void) | null>(null);
+  const ref = useCallback((el: T | null) => {
+    cleanup.current?.();
+    cleanup.current = null;
+    if (el) cleanup.current = observeNear(el, () => setNear(true));
+  }, []);
+  return [ref, near];
 }

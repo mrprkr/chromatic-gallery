@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { GalleryPhoto } from "../core/types";
+import { useNearViewport } from "./hooks";
 import type { ImageAdapter } from "./image";
 
 export type TileLayout = "grid" | "masonry" | "bento";
@@ -23,12 +24,16 @@ export function PhotoTile({
   className?: string;
 }) {
   const [loaded, setLoaded] = useState(false);
+  // Switches the image to eager loading a couple of screens ahead, rather than
+  // leaving it to the browser's lazy loading, which waits too long on Safari.
+  const [nearRef, near] = useNearViewport<HTMLButtonElement>();
   // Grid and bento tiles crop to fill their cell; columns keep the natural ratio.
   const cover = layout !== "masonry";
   const { Image } = image;
 
   return (
     <button
+      ref={nearRef}
       type="button"
       onClick={onClick}
       className={`cg-tile cg-tile-${layout}${className ? ` ${className}` : ""}`}
@@ -42,6 +47,7 @@ export function PhotoTile({
             width={photo.width ?? (cover ? 600 : 800)}
             height={photo.height ?? (cover ? 600 : 1000)}
             sizes={cover ? COVER_SIZES : NATURAL_SIZES}
+            loading={near ? "eager" : "lazy"}
             onLoad={() => setLoaded(true)}
             blurDataURL={photo.blurDataURL}
             className={`cg-tile-img${cover ? " cg-cover" : ""}${loaded ? " is-loaded" : ""}`}

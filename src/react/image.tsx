@@ -16,6 +16,11 @@ export interface GalleryImageProps {
   quality?: number;
   /** Load eagerly and at high priority (the open lightbox photo). */
   priority?: boolean;
+  /**
+   * `eager` once a tile is within a couple of screens of the viewport, so it
+   * loads before it scrolls into view. `lazy` (or unset) until then.
+   */
+  loading?: "eager" | "lazy";
   className?: string;
   style?: CSSProperties;
   onLoad?: () => void;
@@ -52,6 +57,7 @@ function PlainImage({
   fill,
   sizes,
   priority,
+  loading,
   className,
   style,
   onLoad,
@@ -77,7 +83,7 @@ function PlainImage({
       width={fill ? undefined : width}
       height={fill ? undefined : height}
       sizes={sizes}
-      loading={priority ? "eager" : "lazy"}
+      loading={priority ? "eager" : (loading ?? "lazy")}
       decoding="async"
       fetchPriority={priority ? "high" : undefined}
       draggable={draggable}
