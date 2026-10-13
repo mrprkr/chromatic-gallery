@@ -1,6 +1,6 @@
 // Renders the extreme demo samples into public/photos with WebGL shaders in
 // headless Chromium: pure generative pieces (gen-*) and heavy treatments of
-// existing demo photos (fx-*). They push the colour analysis to its limits:
+// existing demo photos (fx-*), and grainy shape textures in each tone family (tex-*). They push the colour analysis to its limits:
 // single saturated hues, near-black, near-white, monochrome and full spectrum.
 //
 //   pnpm generate
@@ -179,6 +179,94 @@ const treatments = [
     outColor = vec4(hsv(h, 1.0, 0.35 + 0.65 * smoothstep(0.0, 0.6, max(s.r, max(s.g, s.b)))), 1);`],
 ];
 
+// Textures, two per tone family: a warped mesh gradient, abstract shapes that
+// each carry their own gradient and soft shadow, and film grain over the top.
+// Each palette stays inside its family so the analysis files it there.
+const palettes = {
+  red: ["#5c0711", "#b3121f", "#e8343a", "#ff7a6b", "#8a0f2e"],
+  orange: ["#6b2603", "#c2500a", "#f07d1a", "#ffb067", "#a33a12"],
+  yellow: ["#6e5a05", "#c9a20a", "#f2d22e", "#fff09a", "#a98a12"],
+  green: ["#0b3d22", "#1b7a43", "#3fbf6e", "#a6e8b8", "#2e6b2a"],
+  blue: ["#06204f", "#1546a8", "#3b7bf0", "#9cc4ff", "#1a2f7a"],
+  purple: ["#2a0a4a", "#5b1b95", "#9248d6", "#d1a6ff", "#6b1f7a"],
+  neutral: ["#1d1d1f", "#4a4a4d", "#8c8c90", "#d9d9db", "#6b6b70"],
+};
+
+// Random but stable per name, so every run renders the same textures.
+function random(seed) {
+  let h = 2166136261;
+  for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909);
+    return ((h ^= h >>> 16) >>> 0) / 2 ** 32;
+  };
+}
+
+const vec3 = (hex) =>
+  `vec3(${[1, 3, 5].map((i) => (parseInt(hex.slice(i, i + 2), 16) / 255).toFixed(3)).join(", ")})`;
+const f = (n) => n.toFixed(3);
+
+function texture(tone, variant) {
+  const r = random(`${tone}-${variant}`);
+  const colors = palettes[tone].map(vec3).join(", ");
+  const points = Array.from({ length: 5 }, () => `vec2(${f(r() * 1.6 - 0.8)}, ${f(r() * 1.2 - 0.6)})`).join(", ");
+  // Variant 1 favours orbs and rings, variant 2 capsules and slabs.
+  const kinds = variant === 1 ? ["circle", "circle", "ring", "capsule"] : ["capsule", "box", "box", "ring"];
+  const shapes = Array.from({ length: 5 + Math.floor(r() * 3) }, () => {
+    const kind = kinds[Math.floor(r() * kinds.length)];
+    const c = `vec2(${f(r() * 1.4 - 0.7)}, ${f(r() * 1.0 - 0.5)})`;
+    const size = 0.08 + r() * 0.28, angle = r() * Math.PI, shift = f(r() * 5);
+    const q = `rot(${f(angle)}) * (p - ${c})`;
+    const d = {
+      circle: `length(p - ${c}) - ${f(size)}`,
+      ring: `abs(length(p - ${c}) - ${f(size)}) - ${f(size * 0.18)}`,
+      capsule: `sdCapsule(${q}, ${f(size * 1.2)}, ${f(size * 0.32)})`,
+      box: `sdBox(${q}, vec2(${f(size)}, ${f(size * (0.35 + r() * 0.5))}), ${f(size * 0.3)})`,
+    }[kind];
+    return `shape(col, p, ${d}, ${shift});`;
+  });
+  return `
+    vec2 p = P();
+    vec3 col = mesh(p, 0.0);
+    ${shapes.join("\n    ")}
+    float g = hash(gl_FragCoord.xy * 0.731 + ${f(r() * 100)}) + hash(gl_FragCoord.xy * 1.37 + 17.0) - 1.0;
+    col += g * 0.075;
+    col *= 1.0 - 0.35 * pow(length(UV() - 0.5) * 1.3, 2.5);
+    outColor = vec4(clamp(col, 0.0, 1.0), 1);`.replace(
+    "vec2 p = P();",
+    `vec2 p = P();\n    vec3 C[5] = vec3[5](${colors});\n    vec2 M[5] = vec2[5](${points});`
+  );
+}
+
+// mesh() and shape() read the palette and mesh points from main's locals, so
+// they are macros rather than functions.
+const TEXTURE_PRELUDE = `
+mat2 rot(float a) { return mat2(cos(a), -sin(a), sin(a), cos(a)); }
+float sdBox(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r; }
+float sdCapsule(vec2 p, float h, float r) { p.x -= clamp(p.x, -h, h); return length(p) - r; }
+#define mesh(P_, S_) meshGradient(P_, S_, C, M)
+vec3 meshGradient(vec2 p, float s, vec3 C[5], vec2 M[5]) {
+  p += 0.25 * (vec2(fbm(p * 1.8 + s), fbm(p * 1.8 + s + 7.3)) - 0.5);
+  vec3 acc = vec3(0); float wsum = 0.0;
+  for (int i = 0; i < 5; i++) {
+    vec2 m = M[(i + int(s)) % 5];
+    float w = 1.0 / pow(dot(p - m, p - m) + 0.02, 1.6);
+    acc += C[i] * w; wsum += w;
+  }
+  return acc / wsum;
+}
+// Soft shadow under the shape, then the shape filled with its own gradient and a lit rim.
+#define shape(COL, P_, D_, S_) { float d_ = D_; \\
+  COL *= 1.0 - 0.35 * (1.0 - smoothstep(-0.01, 0.06, d_ - 0.012)); \\
+  float a_ = 1.0 - smoothstep(-0.0015, 0.0015, d_); \\
+  vec3 f_ = mesh(P_ * 1.3 + S_, S_) * (1.0 + 0.25 * smoothstep(-0.03, 0.0, d_)); \\
+  COL = mix(COL, f_, a_); }
+`;
+
+const textures = Object.keys(palettes).flatMap((tone) =>
+  [1, 2].map((variant) => [`tex-${tone}-${variant}`, ...(variant === 1 ? [1600, 1066] : [1066, 1600]), texture(tone, variant)])
+);
+
 function toDataUrl(id) {
   return `data:image/jpeg;base64,${readFileSync(new URL(`${id}.jpg`, dir)).toString("base64")}`;
 }
@@ -191,7 +279,7 @@ const page = await browser.newPage();
 
 // Draws one full-screen triangle with the fragment shader and returns a JPEG.
 // With a source photo, the canvas takes the photo's size and it is bound as tex.
-async function render(main, width, height, source) {
+async function render(main, width, height, source, prelude = "") {
   return page.evaluate(
     async ({ frag, width, height, source }) => {
       let image;
@@ -231,7 +319,7 @@ async function render(main, width, height, source) {
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       return canvas.toDataURL("image/jpeg", 0.9);
     },
-    { frag: `${PRELUDE}void main() {${main}\n}`, width, height, source }
+    { frag: `${PRELUDE}${prelude}void main() {${main}\n}`, width, height, source }
   );
 }
 
@@ -242,5 +330,6 @@ function save(file, dataUrl) {
 
 for (const [file, width, height, main] of generative) save(file, await render(main, width, height));
 for (const [file, source, main] of treatments) save(file, await render(main, 0, 0, toDataUrl(source)));
+for (const [file, width, height, main] of textures) save(file, await render(main, width, height, undefined, TEXTURE_PRELUDE));
 await browser.close();
 

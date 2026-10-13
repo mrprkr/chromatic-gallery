@@ -54,7 +54,7 @@ const details = {
   dscf6860: ["Gherkin and office towers", "architecture", "London"],
   dscf6869: ["City towers at dusk", "architecture", "London"],
   dscf7028: ["Autumn maple leaves", "nature"],
-  // Rendered by generate.mjs: WebGL shader pieces and treatments of the photos above.
+  // Rendered by generate.mjs: WebGL shader pieces, treatments of the photos above and tone textures.
   "gen-event-horizon": ["Event horizon", "generative"],
   "gen-moire": ["Moiré interference", "generative"],
   "gen-molten-core": ["Molten core", "generative"],
@@ -75,6 +75,20 @@ const details = {
   "fx-onebit-train": ["One-bit train", "treated", "London"],
   "fx-solarised-maple": ["Solarised maple leaves", "treated"],
   "fx-thermal-towers": ["Thermal city towers", "treated", "London"],
+  "tex-red-1": ["Red orbs texture", "texture"],
+  "tex-red-2": ["Red slabs texture", "texture"],
+  "tex-orange-1": ["Orange orbs texture", "texture"],
+  "tex-orange-2": ["Orange slabs texture", "texture"],
+  "tex-yellow-1": ["Yellow orbs texture", "texture"],
+  "tex-yellow-2": ["Yellow slabs texture", "texture"],
+  "tex-green-1": ["Green orbs texture", "texture"],
+  "tex-green-2": ["Green slabs texture", "texture"],
+  "tex-blue-1": ["Blue orbs texture", "texture"],
+  "tex-blue-2": ["Blue slabs texture", "texture"],
+  "tex-purple-1": ["Purple orbs texture", "texture"],
+  "tex-purple-2": ["Purple slabs texture", "texture"],
+  "tex-neutral-1": ["Grey orbs texture", "texture"],
+  "tex-neutral-2": ["Grey slabs texture", "texture"],
 };
 
 // Random but stable per file, so every build of the demo looks the same.
