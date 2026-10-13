@@ -1,12 +1,13 @@
 // Renders the extreme demo samples into public/photos with WebGL shaders in
-// headless Chromium: pure generative pieces (gen-*) and heavy treatments of
-// existing demo photos (fx-*), and grainy shape textures in each tone family (tex-*). They push the colour analysis to its limits:
-// single saturated hues, near-black, near-white, monochrome and full spectrum.
+// headless Chromium: generative pieces (gen-*), grainy shape textures in each
+// tone family (tex-*) and rim-lit folded sheets at every step round the colour
+// wheel (fold-*). They push the colour sort to its limits: single saturated
+// hues, near-black, near-white, monochrome and full spectrum.
 //
 //   pnpm generate
 //
 // Set CHROMIUM_PATH if Playwright's bundled Chromium is not installed.
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 
 const dir = new URL("../public/photos/", import.meta.url);
@@ -14,7 +15,6 @@ const dir = new URL("../public/photos/", import.meta.url);
 const PRELUDE = `#version 300 es
 precision highp float;
 uniform vec2 res;
-uniform sampler2D tex;
 out vec4 outColor;
 #define PI 3.14159265
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -36,7 +36,6 @@ float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
 // uv: 0..1 with y down, matching the image. p: centred, aspect-corrected.
 vec2 UV() { return vec2(gl_FragCoord.x, res.y - gl_FragCoord.y) / res; }
 vec2 P() { return (vec2(gl_FragCoord.x, res.y - gl_FragCoord.y) - 0.5 * res) / res.y; }
-vec3 img(vec2 uv) { return texture(tex, clamp(uv, 0.0, 1.0)).rgb; }
 `;
 
 // [file, width, height, fragment main()]. Captions live in analyse.mjs.
@@ -107,76 +106,6 @@ const generative = [
     float y = uv.y + 0.04 * sin(uv.x * 9.0 + fbm(uv * 4.0) * 4.0);
     float b = floor(y * 9.0) / 8.0;
     outColor = vec4(mix(vec3(1.0, 0.0, 0.4), vec3(1.0, 0.62, 0.0), b), 1);`],
-];
-
-// [file, source photo, fragment main()]
-const treatments = [
-  ["fx-thermal-towers", "dscf6869", `
-    float l = luma(img(UV()));
-    vec3 c = l < 0.25 ? mix(vec3(0, 0, 0.1), vec3(0.4, 0, 0.7), l / 0.25)
-      : l < 0.5 ? mix(vec3(0.4, 0, 0.7), vec3(1, 0.1, 0.1), (l - 0.25) / 0.25)
-      : l < 0.75 ? mix(vec3(1, 0.1, 0.1), vec3(1, 0.8, 0), (l - 0.5) / 0.25)
-      : mix(vec3(1, 0.8, 0), vec3(1), (l - 0.75) / 0.25);
-    outColor = vec4(c, 1);`],
-  ["fx-infrared-canopy", "dscf2237", `
-    vec3 s = img(UV());
-    // Aerochrome swap: foliage-heavy green becomes red, red becomes green, blue holds.
-    vec3 c = vec3(s.g * 1.5 + s.b * 0.2, s.r * 0.75, s.b * 0.9 + s.g * 0.1);
-    outColor = vec4(pow(clamp(c, 0.0, 1.0), vec3(0.85)), 1);`],
-  ["fx-duotone-bridge", "dscf0697", `
-    float l = smoothstep(0.1, 0.85, luma(img(UV())));
-    outColor = vec4(mix(vec3(0.2, 0.0, 0.45), vec3(1.0, 0.25, 0.55), l), 1);`],
-  ["fx-inverted-sails", "dscf2235", `
-    // Inverted, then gradient-mapped into five flat acid bands.
-    float l = 1.0 - luma(img(UV()));
-    vec3 bands[5] = vec3[5](vec3(0.18, 0.0, 0.4), vec3(1.0, 0.0, 0.55), vec3(1.0, 0.45, 0.0), vec3(0.75, 1.0, 0.0), vec3(0.0, 1.0, 0.85));
-    outColor = vec4(bands[int(clamp(l * 5.0, 0.0, 4.0))], 1);`],
-  ["fx-glitch-tunnel", "dscf6683", `
-    vec2 uv = UV();
-    float row = floor(uv.y * 60.0);
-    float shift = step(0.7, hash(vec2(row, 3.0))) * (hash(vec2(row, 7.0)) - 0.5) * 0.25;
-    float split = 0.012 + 0.03 * step(0.85, hash(vec2(floor(uv.y * 14.0), 1.0)));
-    vec3 c = vec3(img(uv + vec2(shift + split, 0)).r, img(uv + vec2(shift, 0)).g, img(uv + vec2(shift - split, 0)).b);
-    c = mix(c, vec3(c.r * 1.4, c.g * 0.6, c.b * 1.5), 0.6);
-    outColor = vec4(c * (0.88 + 0.12 * step(0.5, fract(gl_FragCoord.y / 3.0))), 1);`],
-  ["fx-solarised-maple", "dscf7028", `
-    vec3 s = img(UV());
-    vec3 c = abs(sin(s * PI * 1.5));
-    outColor = vec4(c.brg, 1);`],
-  ["fx-halftone-terrace", "dscf5571", `
-    vec2 px = gl_FragCoord.xy;
-    vec3 s = img(UV());
-    float k = 1.0 - max(s.r, max(s.g, s.b));
-    vec3 cmy = (1.0 - s - k) / max(1.0 - k, 0.001);
-    vec4 ink = vec4(cmy, k);
-    vec3 c = vec3(1);
-    float angles[4] = float[4](0.26, 1.31, 0.79, 0.0);
-    vec3 tints[4] = vec3[4](vec3(0, 1, 1), vec3(1, 0, 1), vec3(1, 1, 0), vec3(0));
-    for (int i = 0; i < 4; i++) {
-      float a = angles[i];
-      vec2 q = mat2(cos(a), -sin(a), sin(a), cos(a)) * px / 12.0;
-      float d = length(fract(q) - 0.5);
-      float dot_ = 1.0 - smoothstep(-0.04, 0.04, d - 0.6 * sqrt(ink[i]));
-      c *= mix(vec3(1), tints[i], dot_);
-    }
-    outColor = vec4(c, 1);`],
-  ["fx-kaleido-luna-park", "dscf0784", `
-    vec2 p = P();
-    float a = atan(p.y, p.x), r = length(p), seg = PI / 6.0;
-    a = abs(mod(a, 2.0 * seg) - seg);
-    vec3 s = img(0.5 + vec2(cos(a), sin(a)) * vec2(0.6, 0.4) * fract(r * 1.4 + 0.2));
-    outColor = vec4(clamp(mix(vec3(luma(s)), s, 2.2) * 1.15, 0.0, 1.0), 1);`],
-  ["fx-onebit-train", "dscf5379", `
-    float l = luma(img(UV()));
-    ivec2 i = ivec2(gl_FragCoord.xy) % 4;
-    int bayer[16] = int[16](0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5);
-    float t = (float(bayer[i.y * 4 + i.x]) + 0.5) / 16.0;
-    outColor = vec4(vec3(step(t, pow(l, 1.2))), 1);`],
-  ["fx-acid-canola", "dscf3932", `
-    vec2 uv = UV();
-    vec3 s = img(uv);
-    float h = fract(luma(s) * 3.0 + uv.x * 0.6 + 0.25 * fbm(uv * 5.0));
-    outColor = vec4(hsv(h, 1.0, 0.35 + 0.65 * smoothstep(0.0, 0.6, max(s.r, max(s.g, s.b)))), 1);`],
 ];
 
 // Textures, two per tone family: a warped mesh gradient, abstract shapes that
@@ -267,9 +196,67 @@ const textures = Object.keys(palettes).flatMap((tone) =>
   [1, 2].map((variant) => [`tex-${tone}-${variant}`, ...(variant === 1 ? [1600, 1066] : [1066, 1600]), texture(tone, variant)])
 );
 
-function toDataUrl(id) {
-  return `data:image/jpeg;base64,${readFileSync(new URL(`${id}.jpg`, dir)).toString("base64")}`;
+// Folds: layered sheets with curved edges on a near-black ground, each lit
+// along its edge with a bright rim and falling off into shadow, casting a dark
+// gap onto the sheet beneath. One per 30° step round the wheel plus two
+// neutrals, all near one hue so the sort shows a clean spectrum.
+const FOLD_PRELUDE = `
+float smin(float a, float b, float k) { float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0); return mix(b, a, h) - k * h * (1.0 - h); }
+// Signed distance to a curved edge u = a + b v + c v² + d sin(k v) in a frame
+// rotated by th; positive on the sheet's side.
+float edge(vec2 p, float th, float a, float b, float c, float d, float k) {
+  vec2 q = mat2(cos(th), sin(th), -sin(th), cos(th)) * p;
+  float g = a + b * q.y + c * q.y * q.y + d * sin(k * q.y);
+  float dg = b + 2.0 * c * q.y + d * k * cos(k * q.y);
+  return (q.x - g) / sqrt(1.0 + dg * dg);
 }
+// Lit near the edge, desaturating towards white at the rim, dark far inside.
+// A faint back-light from the far side keeps wide sheets from going flat black.
+vec3 sheet(float d, float h, float sat, float fall, float glow, float back) {
+  float t = exp(-max(d, 0.0) / fall);
+  vec3 c = hsv(h, sat * mix(1.0, 0.45, pow(t, 4.0)), glow * pow(t, 1.4));
+  c += hsv(h, sat, 0.35) * back * smoothstep(0.2, 1.2, d);
+  c += hsv(h, sat * 0.35, 1.0) * exp(-max(d, 0.0) / 0.004) * 0.7;
+  return c;
+}
+`;
+
+function fold(name, hue, sat) {
+  const r = random(name);
+  const th = (r() - 0.5) * 1.2;
+  const count = 4 + Math.floor(r() * 2);
+  const layers = Array.from({ length: count }, (_, i) => {
+    const a = -0.75 + (1.5 * (i + r() * 0.6)) / count;
+    const b = (r() - 0.5) * 0.5, c = (r() - 0.5) * 1.4, d = r() * 0.08, k = 1.5 + r() * 3;
+    let sd = `edge(p, ${f(th + (r() - 0.5) * 0.35)}, ${f(a)}, ${f(b)}, ${f(c)}, ${f(d)}, ${f(k)})`;
+    // Some sheets end in a rounded corner where a second edge cuts across.
+    if (r() < 0.4) sd = `smin(${sd}, edge(p, ${f(th + 1.9 + r() * 0.8)}, ${f(0.15 + r() * 0.45)}, 0.0, ${f((r() - 0.5) * 0.8)}, 0.0, 1.0), 0.18)`;
+    const h = f((hue + (r() - 0.5) * 0.05 + 1) % 1);
+    const fall = f(0.22 + r() * 0.45), glow = f(0.8 + r() * 0.25), back = f(r());
+    return `{ float d = ${sd};
+      float cov = smoothstep(-aa, aa, d);
+      col *= 1.0 - 0.9 * exp(min(d, 0.0) / 0.03) * (1.0 - cov);
+      col = mix(col, sheet(d, ${h}, ${f(sat)}, ${fall}, ${glow}, ${back}), cov); }`;
+  });
+  return `
+    vec2 p = P();
+    float aa = 1.5 / res.y;
+    vec3 col = hsv(${f(hue)}, ${f(sat)}, 0.025);
+    ${layers.join("\n    ")}
+    col += (hash(gl_FragCoord.xy * 0.731) + hash(gl_FragCoord.xy * 1.37 + 17.0) - 1.0) * 0.03;
+    outColor = vec4(clamp(col, 0.0, 1.0), 1);`;
+}
+
+const foldHues = [
+  ["red", 0], ["vermilion", 1 / 24], ["orange", 1 / 12], ["amber", 1 / 8], ["yellow", 1 / 6], ["lime", 1 / 4],
+  ["green", 1 / 3], ["teal", 1 / 2], ["azure", 7 / 12], ["blue", 0.62], ["indigo", 0.7], ["violet", 0.76],
+  ["magenta", 0.85], ["rose", 0.93],
+];
+const folds = [
+  ...foldHues.map(([name, hue], i) => [`fold-${name}`, ...(i % 2 ? [1600, 1066] : [1066, 1600]), fold(name, hue, 0.9)]),
+  ["fold-graphite", 1066, 1600, fold("graphite", 0.6, 0.0)],
+  ["fold-silver", 1600, 1066, fold("silver", 0.58, 0.06)],
+];
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -278,18 +265,9 @@ const browser = await chromium.launch({
 const page = await browser.newPage();
 
 // Draws one full-screen triangle with the fragment shader and returns a JPEG.
-// With a source photo, the canvas takes the photo's size and it is bound as tex.
-async function render(main, width, height, source, prelude = "") {
+async function render(main, width, height, prelude = "") {
   return page.evaluate(
-    async ({ frag, width, height, source }) => {
-      let image;
-      if (source) {
-        image = new Image();
-        image.src = source;
-        await image.decode();
-        width = image.naturalWidth;
-        height = image.naturalHeight;
-      }
+    ({ frag, width, height }) => {
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
@@ -308,18 +286,11 @@ async function render(main, width, height, source, prelude = "") {
       gl.linkProgram(program);
       gl.useProgram(program);
       gl.uniform2f(gl.getUniformLocation(program, "res"), width, height);
-      if (image) {
-        gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      }
       gl.viewport(0, 0, width, height);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       return canvas.toDataURL("image/jpeg", 0.9);
     },
-    { frag: `${PRELUDE}${prelude}void main() {${main}\n}`, width, height, source }
+    { frag: `${PRELUDE}${prelude}void main() {${main}\n}`, width, height }
   );
 }
 
@@ -329,7 +300,7 @@ function save(file, dataUrl) {
 }
 
 for (const [file, width, height, main] of generative) save(file, await render(main, width, height));
-for (const [file, source, main] of treatments) save(file, await render(main, 0, 0, toDataUrl(source)));
-for (const [file, width, height, main] of textures) save(file, await render(main, width, height, undefined, TEXTURE_PRELUDE));
+for (const [file, width, height, main] of textures) save(file, await render(main, width, height, TEXTURE_PRELUDE));
+for (const [file, width, height, main] of folds) save(file, await render(main, width, height, FOLD_PRELUDE));
 await browser.close();
 
