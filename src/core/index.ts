@@ -6,6 +6,7 @@ export {
   shuffleWithinChromaticOrder,
   groupByMonth,
   monthKey,
+  balanceColumns,
   type TimelineGroup,
 } from "./arrange";
 export { colorBlur } from "./blur";
