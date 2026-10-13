@@ -52,8 +52,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsup && cp src/react/styles.css dist/styles.css",
-    "dev": "tsup --watch",
+    "build": "tsdown && cp src/react/styles.css dist/styles.css",
+    "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -85,7 +85,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.35.5",
-    "tsup": "^8.3.0",
+    "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   },
